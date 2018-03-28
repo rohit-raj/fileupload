@@ -1,0 +1,25 @@
+{
+  "name": "fileupload",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.6.0",
+    "cloudinary": "^1.9.0",
+    "ejs": "~1.0.0",
+    "express": "~4.0.0",
+    "express-fileupload": "^0.1.4",
+    "fs": "0.0.1-security"
+  },
+  "devDependencies": {
+    "mocha": "^3.4.2",
+    "should": "^11.2.1",
+    "supertest": "^3.0.0"
+  }
+}
