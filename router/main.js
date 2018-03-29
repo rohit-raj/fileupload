@@ -3,9 +3,9 @@ var cloudinary  = require('cloudinary');
 var fs          = require('fs');
 var async       = require('async');
 cloudinary.config({
-	cloud_name: 'xxxx',
-	api_key: 'xxxx',
-	api_secret: 'xxxx'
+    cloud_name: 'xxxx',
+    api_key: 'xxxx',
+    api_secret: 'xxxx'
 });
 
 module.exports=function(app){
@@ -20,15 +20,25 @@ module.exports=function(app){
 			return res.status(400).send('No files were uploaded.');
 
         var tasks = [];
+        var folderName = 'Rohit';
 
         if(!req.files.sampleFile.length) {
             var sampleFile = req.files.sampleFile;
-            tasks.push(uploader.bind(null, sampleFile, []));
+            //tasks.push(uploader.bind(null, sampleFile, []));
+            tasks.push(saveLocalImage.bind(null, sampleFile, []));
+            tasks.push(uploadImage.bind(null, sampleFile, folderName));
+            tasks.push(deleteLocalImage.bind(null, sampleFile));
         } else {
-            var file = req.files.sampleFile;
-            tasks.push(uploader.bind(null, file[0], []));
-            for(var i = 1; i < file.length; i++) {
-                tasks.push(uploader.bind(null, file[i]));
+            var sampleFile = req.files.sampleFile;
+            //tasks.push(uploader.bind(null, file[0], []));
+            tasks.push(saveLocalImage.bind(null, sampleFile[0], []));
+            tasks.push(uploadImage.bind(null, sampleFile[0], folderName));
+            tasks.push(deleteLocalImage.bind(null, sampleFile[0]));
+            for(var i = 1; i < sampleFile.length; i++) {
+                //tasks.push(uploader.bind(null, file[i]));
+                tasks.push(saveLocalImage.bind(null, sampleFile[i]));
+                tasks.push(uploadImage.bind(null, sampleFile[i], folderName));
+                tasks.push(deleteLocalImage.bind(null, sampleFile[i]));
             }
         }
 
@@ -63,5 +73,33 @@ function uploader(sampleFile, urls, callback) {
                 callback(null, urls);
             });
         });
+    });
+}
+
+function saveLocalImage(sampleFile, urlList, callback){
+    sampleFile.mv('images/' + sampleFile.name, function(err) {
+        if (err){
+            return callback(new Error("Error Saving the image locally"));
+        }
+        callback(null, urlList);
+    });
+}
+
+function uploadImage(sampleFile, folderName, urlList, callback){
+    cloudinary.v2.uploader.upload('images/' + sampleFile.name, {folder: folderName}, function(error, result) {
+        if (error){
+            return callback(new Error("Error Saving the image locally"));
+        }
+        urlList.push(result.secure_url);
+        callback(null, urlList);
+    });
+}
+
+function deleteLocalImage(sampleFile, urlList, callback){
+    fs.unlink('images/' + sampleFile.name, function(error) {
+        if (error) {
+            return callback(new Error("Error Deleting the image locally"));
+        }
+        callback(null, urlList);
     });
 }
